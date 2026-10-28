@@ -72,6 +72,32 @@ router.post("/:boardId/members", boardAccess, requireRole("owner", "admin"), asy
   res.status(201).json({ success: true, board: req.board });
 });
 
+// Remove a member (owner/admin) or leave the board (any member, for themselves).
+router.delete("/:boardId/members/:userId", boardAccess, async (req, res) => {
+  const { userId } = req.params;
+  const target = req.board.members.find((m) => m.user.equals(userId));
+  if (!target) return res.status(404).json({ success: false, message: "Not a member of this board" });
+  if (target.role === "owner") return res.status(400).json({ success: false, message: "The owner cannot be removed" });
+
+  const isSelf = userId === req.user.id;
+  const canRemove = isSelf || req.role === "owner" || (req.role === "admin" && target.role === "member");
+  if (!canRemove) return res.status(403).json({ success: false, message: "Insufficient permissions" });
+
+  req.board.members = req.board.members.filter((m) => !m.user.equals(userId));
+  await req.board.save();
+  await Card.updateMany({ board: req.board._id }, { $pull: { assignees: userId } });
+
+  broadcast(req, req.board.id, "member:removed", { userId });
+
+  // stop the removed user's sockets from receiving further board events
+  const io = req.app.get("io");
+  if (io) {
+    const sockets = await io.in(`board:${req.board.id}`).fetchSockets();
+    sockets.filter((s) => s.data.userId === userId).forEach((s) => s.leave(`board:${req.board.id}`));
+  }
+  res.json({ success: true });
+});
+
 router.use("/:boardId/lists", boardAccess, listRoutes);
 router.use("/:boardId/cards", boardAccess, cardRoutes);
 

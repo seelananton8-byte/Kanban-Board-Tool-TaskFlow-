@@ -12,6 +12,7 @@ export function initSocket(httpServer) {
     try {
       const payload = jwt.verify(socket.handshake.auth?.token, process.env.JWT_ACCESS_SECRET);
       socket.userId = payload.sub;
+      socket.data.userId = payload.sub;
       next();
     } catch {
       next(new Error("unauthorized"));

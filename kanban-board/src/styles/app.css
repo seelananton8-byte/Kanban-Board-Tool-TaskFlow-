@@ -120,3 +120,190 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); outline
   .auth-brand { padding: 24px; gap: 24px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ===== premium polish ===== */
+:root { --shadow-sm: 0 1px 2px rgba(20, 23, 43, 0.06), 0 1px 3px rgba(20, 23, 43, 0.05); --shadow-md: 0 6px 18px rgba(20, 23, 43, 0.1); }
+
+.sidebar { background: linear-gradient(180deg, #181b38, #0e1124); }
+.side-link { transition: background 0.15s; }
+.side-link.active { box-shadow: inset 3px 0 0 #7a80ff; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(76, 84, 240, 0.35); transition: background 0.15s; }
+.eyebrow { margin: 0 0 4px; color: var(--accent); font-weight: 600; font-size: 0.85rem; }
+.board-head { padding-bottom: 20px; }
+.board-scroll { scrollbar-width: thin; scrollbar-color: #c3c8dd transparent; }
+
+/* boards dashboard */
+.board-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.board-tile { display: flex; flex-direction: column; gap: 10px; min-height: 150px; padding: 20px; border-radius: 16px; border: 1px solid var(--line); border-top: 1px solid var(--line); box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s; }
+.board-tile:hover { box-shadow: var(--shadow-md); border-color: var(--col); transform: translateY(-2px); }
+.tile-icon { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--col); color: #fff; font-family: var(--head); font-weight: 800; }
+.tile-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; color: var(--ink-2); font-size: 0.85rem; }
+.board-tile:hover .tile-foot { color: var(--col); }
+
+/* kanban */
+.kanban-column { border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(20, 23, 43, 0.04); }
+.task-card { box-shadow: var(--shadow-sm); transition: box-shadow 0.15s, border-color 0.15s; }
+.task-card:hover { box-shadow: var(--shadow-md); }
+.modal { border-radius: 18px; }
+
+/* ===== responsive ===== */
+@media (max-width: 820px) {
+  .sidebar { flex-wrap: wrap; row-gap: 10px; }
+  .side-boards { display: flex; flex-direction: row; align-items: center; order: 3; flex: 1 0 100%; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .side-title { display: none; }
+  .side-link { flex: none; white-space: nowrap; padding: 7px 12px; }
+  .side-link.active { box-shadow: none; }
+
+  .board-head { flex-direction: column; align-items: stretch; padding-top: 20px; }
+  .board-head h1 { font-size: 1.5rem; }
+  .board-tools { width: 100%; justify-content: space-between; }
+  .board-tools .inline-form, .create-form { width: 100%; }
+  .board-tools .inline-form input, .create-form input { flex: 1; }
+
+  .board-scroll { scroll-snap-type: x mandatory; scroll-padding-left: 16px; }
+  .kanban-column { flex: 0 0 min(86vw, 320px); min-width: 0; scroll-snap-align: start; }
+  .kanban-column.add-list { flex-basis: min(70vw, 260px); }
+
+  .modal-overlay { align-items: end; padding: 0; }
+  .modal { width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0; }
+}
+@media (max-width: 480px) {
+  .board-grid { grid-template-columns: 1fr; }
+  .board-head, .board-scroll, .board-error { padding-left: 14px; padding-right: 14px; }
+}
+
+/* cards without labels / date / assignee stay compact */
+.label-row:empty { display: none; }
+.card-row .icon-button { margin-left: auto; }
+.card-meta { min-height: 0; }
+.card-meta:not(:has(.due, .avatar-chip)) { display: none; }
+
+@media (min-width: 821px) {
+  .board-head, .board-scroll, .board-error { padding-left: 24px; padding-right: 24px; }
+  .kanban-board { gap: 12px; }
+  .kanban-column { flex: 1 1 0; min-width: 210px; max-width: 340px; }
+  .kanban-column.add-list { flex: 0 0 150px; min-width: 150px; max-width: 150px; }
+}
+
+/* compact cards: delete icon in the top-right corner */
+.task-card { position: relative; }
+.card-row { display: block; min-height: 0; }
+.card-row .icon-button { position: absolute; top: 8px; right: 8px; margin: 0; }
+.task-card h3 { padding-right: 28px; }
+.label-row { padding-right: 28px; }
+
+@media (hover: hover) {
+  .card-row .icon-button { opacity: 0; transition: opacity 0.15s; }
+  .task-card:hover .icon-button { opacity: 1; }
+}
+
+/* equal-height lists */
+.kanban-board { align-items: stretch; }
+.kanban-column.add-list { align-self: flex-start; }
+
+@media (min-width: 821px) {
+  .kanban-board { min-height: calc(100vh - 230px); }
+}
+
+/* ===== uniform cards: same size, same structure, aligned lists ===== */
+.task-card {
+  min-height: 128px;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
+  padding: 12px 14px;
+}
+.task-card .label-row { display: flex; min-height: 22px; align-content: flex-start; }
+.task-card h3 {
+  align-self: start; font-size: 0.93rem; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.task-card .card-meta { display: flex; min-height: 24px; }
+
+/* consistent controls */
+.kanban-column .inline-form input { height: 40px; }
+.kanban-column.add-list { align-self: flex-start; }
+.column-header { min-height: 30px; }
+
+/* lists fit their content, still equal height */
+@media (min-width: 821px) {
+  .kanban-board { min-height: 0; }
+}
+.task-card { min-height: 112px; }
+
+@media (min-width: 821px) {
+  .board-scroll { overflow-x: visible; padding-bottom: 32px; }
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+  }
+  .kanban-column,
+  .kanban-column.add-list { width: auto; min-width: 0; max-width: none; }
+  .kanban-column.add-list { align-self: start; min-height: 64px; }
+}
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  .kanban-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* members popup */
+.members-wrap { position: relative; }
+.members-btn { display: inline-flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
+.members-btn:hover span:last-child { color: var(--accent); }
+.members-pop { position: absolute; top: 100%; left: 0; z-index: 20; width: min(380px, 90vw); margin-top: 8px; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-md); }
+.member-row { display: flex; align-items: center; gap: 10px; padding: 8px; }
+.member-info { display: grid; flex: 1; min-width: 0; }
+.member-info strong { font-size: 0.9rem; color: var(--ink); }
+.member-info small { overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+.role-pill { padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-size: 0.72rem; font-weight: 600; text-transform: capitalize; }
+
+/* ===== toasts ===== */
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 100; display: grid; gap: 10px; width: min(360px, calc(100vw - 32px)); }
+.toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 12px 12px 14px; background: #14172b; color: #fff; border-radius: 12px; border-left: 4px solid #7a80ff; box-shadow: 0 12px 30px rgba(20, 23, 43, 0.3); font-size: 0.9rem; line-height: 1.4; animation: toast-in 0.25s ease both; }
+.toast.success { border-left-color: #10b981; }
+.toast.error { border-left-color: #f87171; }
+.toast p { flex: 1; margin: 0; }
+.toast button { display: grid; place-items: center; width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; color: #aab0d0; cursor: pointer; }
+.toast button:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== confirm / prompt dialog ===== */
+.dlg-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgba(20, 23, 43, 0.5); }
+.dlg { width: min(400px, 100%); display: grid; gap: 12px; padding: 24px; background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(20, 23, 43, 0.3); }
+.dlg h2 { font-size: 1.15rem; }
+.dlg p { margin: 0; color: var(--ink-2); line-height: 1.5; }
+.dlg-field { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.dlg-field input { width: 100%; padding: 11px 12px; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+.btn.ghost:hover { background: #f3f4fa; }
+.btn.danger { background: var(--danger); box-shadow: none; }
+.btn.danger:hover { background: #b9343d; }
+
+/* ===== skeleton loaders ===== */
+.sk { display: block; border-radius: 8px; background: linear-gradient(90deg, #e3e6f1 25%, #eef0f7 37%, #e3e6f1 63%); background-size: 400% 100%; animation: sk-shimmer 1.4s ease infinite; }
+.sk-title { height: 32px; width: 260px; max-width: 70%; margin-bottom: 10px; }
+.sk-line { height: 14px; }
+.sk-w40 { width: 40%; } .sk-w50 { width: 50%; } .sk-w60 { width: 60%; }
+.sk-icon { width: 38px; height: 38px; border-radius: 10px; }
+.sk-card { height: 112px; border-radius: 10px; }
+.skeleton-tile { pointer-events: none; }
+@keyframes sk-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+@media (prefers-reduced-motion: reduce) { .sk, .toast { animation: none; } }
+
+/* ===== drag overlay ===== */
+.task-card.is-overlay { cursor: grabbing; box-shadow: 0 14px 32px rgba(20, 23, 43, 0.25); transform: rotate(2deg); }
+
+/* ===== tablet: 2 lists per row (3 was too narrow) ===== */
+@media (min-width: 821px) and (max-width: 1020px) {
+  .kanban-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ===== phones: bottom toasts + bottom-sheet dialog ===== */
+@media (max-width: 480px) {
+  .toasts { left: 16px; right: 16px; bottom: 12px; width: auto; }
+  .dlg-overlay { align-items: end; padding: 0; }
+  .dlg { width: 100%; border-radius: 18px 18px 0 0; }
+}
