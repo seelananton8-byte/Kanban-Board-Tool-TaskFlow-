@@ -7,6 +7,7 @@ const cardSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, maxlength: 120 },
     description: { type: String, default: "", maxlength: 2000 },
     position: { type: Number, required: true },
+    completed: { type: Boolean, default: false },
     labels: [
       {
         _id: false,

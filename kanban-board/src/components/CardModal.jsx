@@ -9,6 +9,7 @@ export default function CardModal({ card, members, onSave, onClose }) {
     dueDate: card.dueDate ? card.dueDate.slice(0, 10) : "",
     labels: card.labels || [],
     assignees: card.assignees || [],
+    completed: Boolean(card.completed),
   });
   const [label, setLabel] = useState({ text: "", color: "blue" });
   const [error, setError] = useState("");
@@ -39,6 +40,10 @@ export default function CardModal({ card, members, onSave, onClose }) {
       <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
         <h2>Edit card</h2>
         <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+        <label className="check-row">
+          <input type="checkbox" checked={form.completed} onChange={(e) => setForm({ ...form, completed: e.target.checked })} />
+          Mark as complete
+        </label>
         <textarea rows={4} placeholder="Description" value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })} />
         <label>Due date <input type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} /></label>

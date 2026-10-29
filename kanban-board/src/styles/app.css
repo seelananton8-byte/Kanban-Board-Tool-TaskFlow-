@@ -307,3 +307,19 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); outline
   .dlg-overlay { align-items: end; padding: 0; }
   .dlg { width: 100%; border-radius: 18px 18px 0 0; }
 }
+
+/* ===== completed cards ===== */
+.meta-left { display: inline-flex; align-items: center; gap: 8px; }
+.check-btn { width: 18px; height: 18px; padding: 0; display: inline-grid; place-items: center; border-radius: 50%; border: 1.5px solid #b3b9d2; background: #fff; color: #fff; cursor: pointer; }
+button.check-btn:hover { border-color: #10b981; }
+.check-btn.on { background: #10b981; border-color: #10b981; }
+.task-card.done { background: #f7f9fb; }
+.task-card.done h3 { color: var(--ink-2); text-decoration: line-through; text-decoration-color: #9aa1c4; }
+.task-card.done .task-tag { opacity: 0.6; }
+
+/* ===== role dropdown ===== */
+.role-select { padding: 4px 8px; border-radius: 8px; font-size: 0.8rem; }
+
+/* cards without labels: title sits at the top */
+.task-card .label-row:empty { display: none; }
+

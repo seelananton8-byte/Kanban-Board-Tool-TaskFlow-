@@ -1,11 +1,10 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Board from "./models/Board.js";
+import { origins } from "./utils/origins.js";
 
 export function initSocket(httpServer) {
-  const io = new Server(httpServer, {
-    cors: { origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true },
-  });
+  const io = new Server(httpServer, { cors: { origin: origins, credentials: true } });
 
   // Socket auth: client connects with io(url, { auth: { token: accessToken } })
   io.use((socket, next) => {

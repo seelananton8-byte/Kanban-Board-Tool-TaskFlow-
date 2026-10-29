@@ -5,7 +5,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Trash2 } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import api from "../services/api";
 import { getSocket } from "../services/socket";
 import { useAuth } from "../context/AuthContext";
@@ -31,8 +31,10 @@ function newPosition(items, index) {
   return (prev + next) / 2;
 }
 
-function CardBody({ card, members, onDelete }) {
+function CardBody({ card, members, onDelete, onToggle }) {
   const who = members.filter((m) => (card.assignees || []).includes(m._id));
+  const overdue = card.dueDate && !card.completed && new Date(card.dueDate) < startOfToday();
+  const tick = card.completed && <Check size={12} strokeWidth={3} />;
   return (
     <>
       <div className="card-row">
@@ -53,11 +55,26 @@ function CardBody({ card, members, onDelete }) {
       </div>
       <h3>{card.title}</h3>
       <div className="card-meta">
-        {card.dueDate ? (
-          <span className={`due${new Date(card.dueDate) < startOfToday() ? " overdue" : ""}`}>
-            {new Date(card.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-          </span>
-        ) : <span />}
+        <span className="meta-left">
+          {onToggle ? (
+            <button
+              className={`check-btn${card.completed ? " on" : ""}`}
+              aria-label={card.completed ? "Mark as not complete" : "Mark as complete"}
+              onMouseDown={stop}
+              onTouchStart={stop}
+              onClick={(e) => { e.stopPropagation(); onToggle(card); }}
+            >
+              {tick}
+            </button>
+          ) : (
+            <span className={`check-btn${card.completed ? " on" : ""}`}>{tick}</span>
+          )}
+          {card.dueDate && (
+            <span className={`due${overdue ? " overdue" : ""}`}>
+              {new Date(card.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+            </span>
+          )}
+        </span>
         <span className="avatars">
           {who.map((u) => <span key={u._id} className="avatar-chip" title={u.name}>{initials(u.name)}</span>)}
         </span>
@@ -66,7 +83,7 @@ function CardBody({ card, members, onDelete }) {
   );
 }
 
-function Card({ card, members, onOpen, onDelete }) {
+function Card({ card, members, onOpen, onDelete, onToggle }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
     data: { type: "card" },
@@ -74,18 +91,18 @@ function Card({ card, members, onOpen, onDelete }) {
   return (
     <article
       ref={setNodeRef}
-      className="task-card"
+      className={`task-card${card.completed ? " done" : ""}`}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.35 : 1 }}
       onClick={() => onOpen(card._id)}
       {...attributes}
       {...listeners}
     >
-      <CardBody card={card} members={members} onDelete={onDelete} />
+      <CardBody card={card} members={members} onDelete={onDelete} onToggle={onToggle} />
     </article>
   );
 }
 
-function Column({ list, cards, members, accent, onAddCard, onOpen, onDelete, onDeleteList }) {
+function Column({ list, cards, members, accent, onAddCard, onOpen, onDelete, onToggle, onDeleteList }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `list:${list._id}`,
     data: { type: "list" },
@@ -106,7 +123,9 @@ function Column({ list, cards, members, accent, onAddCard, onOpen, onDelete, onD
       </header>
       <SortableContext items={cards.map((c) => c._id)} strategy={verticalListSortingStrategy}>
         <div className="task-list">
-          {cards.map((c) => <Card key={c._id} card={c} members={members} onOpen={onOpen} onDelete={onDelete} />)}
+          {cards.map((c) => (
+            <Card key={c._id} card={c} members={members} onOpen={onOpen} onDelete={onDelete} onToggle={onToggle} />
+          ))}
         </div>
       </SortableContext>
       <form className="inline-form" onSubmit={(e) => {
@@ -185,6 +204,7 @@ export default function BoardPage() {
       },
       "board:updated": ({ title }) => setBoard((b) => b && { ...b, title }),
       "member:added": refreshBoard,
+      "member:updated": () => loadBoard().catch(() => {}), // roles changed: refresh my own permissions too
       "member:removed": ({ userId }) => {
         if (userId === user._id) {
           toast.info("You were removed from this board");
@@ -216,6 +236,15 @@ export default function BoardPage() {
     try {
       await api.delete(`/boards/${id}/cards/${cardId}`);
       toast.success("Card deleted");
+    } catch (e) { setCards(prev); fail(e); }
+  }
+
+  async function toggleComplete(card) {
+    const prev = cards;
+    setCards((c) => c.map((x) => (x._id === card._id ? { ...x, completed: !x.completed } : x)));
+    try {
+      const { data } = await api.patch(`/boards/${id}/cards/${card._id}`, { completed: !card.completed });
+      setCards((c) => upsert(c, data.card));
     } catch (e) { setCards(prev); fail(e); }
   }
 
@@ -285,6 +314,14 @@ export default function BoardPage() {
       setInvite("");
       refreshBoard();
     } catch (err) { fail(err); }
+  }
+
+  async function changeRole(u, newRole) {
+    try {
+      await api.patch(`/boards/${id}/members/${u._id}`, { role: newRole });
+      toast.success(`${u.name} is now ${newRole === "admin" ? "an admin" : "a member"}`);
+      await refreshBoard();
+    } catch (e) { fail(e); }
   }
 
   async function removeMember(u) {
@@ -398,7 +435,15 @@ export default function BoardPage() {
                   <div key={m.user._id} className="member-row">
                     <span className="avatar-chip">{initials(m.user.name)}</span>
                     <div className="member-info"><strong>{m.user.name}</strong><small>{m.user.email}</small></div>
-                    <span className="role-pill">{m.role}</span>
+                    {role === "owner" && m.role !== "owner" ? (
+                      <select className="role-select" value={m.role} aria-label={`Role for ${m.user.name}`}
+                        onChange={(e) => changeRole(m.user, e.target.value)}>
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      <span className="role-pill">{m.role}</span>
+                    )}
                     {m.role !== "owner" && (role === "owner" || (role === "admin" && m.role === "member") || m.user._id === user._id) && (
                       <button className="link-btn danger" onClick={() => removeMember(m.user)}>
                         {m.user._id === user._id ? "Leave" : "Remove"}
@@ -433,7 +478,8 @@ export default function BoardPage() {
               {sortedLists.map((l, i) => (
                 <Column key={l._id} list={l} members={members} accent={i % 5}
                   cards={cards.filter((c) => c.list === l._id).sort(byPos)}
-                  onAddCard={addCard} onOpen={setOpenId} onDelete={deleteCard} onDeleteList={deleteList} />
+                  onAddCard={addCard} onOpen={setOpenId} onDelete={deleteCard}
+                  onToggle={toggleComplete} onDeleteList={deleteList} />
               ))}
               <form className="kanban-column add-list" onSubmit={addList}>
                 <input placeholder="+ Add list" value={listTitle} onChange={(e) => setListTitle(e.target.value)} />
@@ -442,7 +488,7 @@ export default function BoardPage() {
           </SortableContext>
           <DragOverlay>
             {activeCard ? (
-              <article className="task-card is-overlay">
+              <article className={`task-card is-overlay${activeCard.completed ? " done" : ""}`}>
                 <CardBody card={activeCard} members={members} />
               </article>
             ) : null}
