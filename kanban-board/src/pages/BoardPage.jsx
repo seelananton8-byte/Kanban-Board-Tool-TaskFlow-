@@ -115,7 +115,7 @@ function Column({ list, cards, members, accent, onAddCard, onOpen, onDelete, onT
       style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 5 : undefined, opacity: isDragging ? 0.85 : 1 }}
     >
       <header className="column-header" {...attributes} {...listeners}>
-        <div className="column-title"><h2>{list.title}</h2><span className="task-count">{cards.length}</span></div>
+        <div className="column-title"><h2 title={list.title}>{list.title}</h2><span className="task-count">{cards.length}</span></div>
         <button className="icon-button small" title="Delete list" aria-label="Delete list"
           onMouseDown={stop} onTouchStart={stop} onClick={() => onDeleteList(list)}>
           <Trash2 size={14} />

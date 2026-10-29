@@ -323,3 +323,21 @@ button.check-btn:hover { border-color: #10b981; }
 /* cards without labels: title sits at the top */
 .task-card .label-row:empty { display: none; }
 
+/* ===== long text never breaks the layout ===== */
+.column-title { flex: 1; min-width: 0; }
+.column-title h2 {
+  min-width: 0; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.task-count, .column-header .icon-button { flex: none; }
+
+.task-card h3 { overflow-wrap: anywhere; }
+.label-row { min-width: 0; }
+.task-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.board-head > div:first-child { min-width: 0; }
+.board-head h1 { overflow-wrap: anywhere; }
+.board-tile strong { overflow-wrap: anywhere; }
+.member-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toast p, .dlg p { overflow-wrap: anywhere; }
+
