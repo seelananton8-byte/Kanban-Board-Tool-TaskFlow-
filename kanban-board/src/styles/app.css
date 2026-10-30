@@ -101,23 +101,12 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); outline
 .modal .label-row { margin: 6px 0; }
 .check-row { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; margin-top: 6px; }
 
-/* auth */
-.auth-shell { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 100vh; }
-.auth-brand { background: var(--ink); color: #b9bdd6; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
-.auth-brand h2 { color: #fff; font-size: clamp(2rem, 3.6vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
-.auth-brand p { max-width: 38ch; line-height: 1.55; margin: 16px 0 0; }
-.auth-card { align-self: center; justify-self: center; width: min(380px, 100% - 48px); display: grid; gap: 14px; }
-.auth-card h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; }
-.auth-card form { display: grid; gap: 10px; }
-
 @media (max-width: 820px) {
   .shell { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; flex-direction: row; align-items: center; padding: 12px; }
   .side-boards, .side-who { display: none; }
   .side-user { margin: 0 0 0 auto; border: 0; padding: 0; }
   .board-head, .board-scroll, .board-error { padding-left: 16px; padding-right: 16px; }
-  .auth-shell { grid-template-columns: 1fr; }
-  .auth-brand { padding: 24px; gap: 24px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
@@ -174,7 +163,6 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); outline
 }
 
 /* cards without labels / date / assignee stay compact */
-.label-row:empty { display: none; }
 .card-row .icon-button { margin-left: auto; }
 .card-meta { min-height: 0; }
 .card-meta:not(:has(.due, .avatar-chip)) { display: none; }
@@ -208,7 +196,6 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); outline
 
 /* ===== uniform cards: same size, same structure, aligned lists ===== */
 .task-card {
-  min-height: 128px;
   grid-template-rows: auto 1fr auto;
   gap: 6px;
   padding: 12px 14px;
@@ -340,4 +327,3 @@ button.check-btn:hover { border-color: #10b981; }
 .board-tile strong { overflow-wrap: anywhere; }
 .member-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toast p, .dlg p { overflow-wrap: anywhere; }
-
