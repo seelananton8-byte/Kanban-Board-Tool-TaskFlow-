@@ -35,7 +35,7 @@ if (process.env.JWT_ACCESS_SECRET === process.env.JWT_REFRESH_SECRET) {
 }
 
 const app = express();
-if (isProd) app.set("trust proxy", 1); // behind Render/Heroku-style proxies (needed for rate limiting)
+if (isProd) app.set("trust proxy", 2); // Render + Vercel proxy: so rate limits use the real visitor IP
 app.use(helmet());
 app.use(cors({ origin: origins, credentials: true }));
 app.use(express.json({ limit: "100kb" }));
