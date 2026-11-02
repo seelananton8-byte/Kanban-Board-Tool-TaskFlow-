@@ -161,6 +161,14 @@ export default function BoardPage() {
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   );
 
+    // iOS Safari: a non-passive touchmove listener must already exist when the drag starts,
+  // otherwise the page scrolls instead of the card moving.
+  useEffect(() => {
+    const noop = () => {};
+    window.addEventListener("touchmove", noop, { passive: false });
+    return () => window.removeEventListener("touchmove", noop);
+  }, []);
+
   const fail = useCallback((e) => toast.error(e.response?.data?.message || "Something went wrong"), [toast]);
   const refreshBoard = useCallback(() => api.get(`/boards/${id}`).then((r) => setBoard(r.data.board)), [id]);
 

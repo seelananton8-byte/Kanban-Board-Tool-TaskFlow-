@@ -327,3 +327,28 @@ button.check-btn:hover { border-color: #10b981; }
 .board-tile strong { overflow-wrap: anywhere; }
 .member-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toast p, .dlg p { overflow-wrap: anywhere; }
+
+/* ===== phones: lists stack vertically, one list per row ===== */
+@media (max-width: 820px) {
+  .board-scroll { overflow-x: visible; scroll-snap-type: none; padding-bottom: 32px; }
+  .kanban-board { display: grid; grid-template-columns: 1fr; gap: 14px; min-height: 0; }
+  .kanban-column,
+  .kanban-column.add-list { flex: none; width: auto; min-width: 0; max-width: none; }
+  .task-card { min-height: 88px; }
+}
+
+/* ===== touch devices (iPhone): no text selection / callout while long-pressing ===== */
+@media (pointer: coarse) {
+  .task-card, .column-header {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* iOS zooms the page when an input is smaller than 16px */
+@media (max-width: 820px) {
+  input, select, textarea { font-size: 16px; }
+}
