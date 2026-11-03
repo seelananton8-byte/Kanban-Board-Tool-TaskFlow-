@@ -21,4 +21,6 @@ const cardSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+cardSchema.index({ list: 1, position: 1 });
+cardSchema.index({ board: 1, position: 1 });
 export default mongoose.model("Card", cardSchema);

@@ -6,6 +6,17 @@ import User from "../models/User.js";
 import { signAccess, signRefresh, sha256 } from "../utils/tokens.js";
 import { isEmail, str } from "../utils/validate.js";
 import { requireAuth } from "../middleware/auth.js";
+import rateLimit from "express-rate-limit";
+
+// Per-account brute-force protection (works even if someone fakes their IP).
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => `login:${String(req.body?.email || "").toLowerCase().slice(0, 254)}`,
+  handler: (_req, res) =>
+    res.status(429).json({ success: false, message: "Too many login attempts. Try again in 15 minutes." }),
+});
 
 const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -50,7 +61,7 @@ router.post("/register", async (req, res) => {
   res.status(201).json(await startSession(res, user));
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!isEmail(email) || typeof password !== "string" || password.length > 72) {
     return fail(res, 401, "Invalid email or password");
